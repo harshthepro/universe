@@ -1,6 +1,6 @@
 "use client";
 import { UserButton, UserProfile } from "@clerk/nextjs";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
 import ContentArea from "./ContentArea";
 import AddProjectWindow from "./Components/AddProjectWindow";
@@ -18,14 +18,41 @@ import AllProjectsWindow from "./Components/AllProjectsWindow";
 import SortingDropDown from "./Components/SortingDropDown";
 import AllFavoriteComponents from "./Components/AllFavoriteComponents";
 import FilterDropDown from "./Components/FilterDropDown";
-import { useEffect } from "react";
 import { Component, Project } from "../allData";
+
 export interface SelectedIcon {
   icon: React.ReactNode;
   name: string;
 }
+
 function Dashboard() {
-  //Variables from useAppContext
+  const [initialProjects, setInitialProjects] = useState<Project[]>([]);
+
+  // Fetch projects on component mount
+  useEffect(() => {
+    async function fetchProjects() {
+      try {
+        const response = await fetch("/api/projects"); // Replace with your actual API endpoint
+        if (!response.ok) {
+          throw new Error("Failed to fetch projects");
+        }
+        const data = await response.json();
+
+        // Ensure the data is a plain array of objects
+        const plainProjects = data.projects.map((project: any) => ({
+          ...project,
+        }));
+
+        setInitialProjects(plainProjects); // Adjust based on your API response structure
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+        toast.error("Failed to load projects");
+      }
+    }
+
+    fetchProjects();
+  }, []);
+
   const {
     openProjectWindowObject: { openProjectWindow },
     showComponentPageObject: { showComponentPage },
@@ -37,27 +64,23 @@ function Dashboard() {
     mainSearchQueryObject: { mainSearchQuery },
   } = useAppContext();
 
-  //local Variables
   const [selectedIcon, setSelectedIcon] = React.useState<SelectedIcon>({
     icon: <CodeIcon />,
     name: "CodeIcon",
   });
 
-  //Get the icon from the callback function and set it in the selectedIcon state
   function getTheIconSelected(icon: IconData | undefined) {
     if (!icon) {
-        console.error("Invalid icon data passed to getTheIconSelected:", icon);
-        return;
+      console.error("Invalid icon data passed to getTheIconSelected:", icon);
+      return;
     }
 
     setSelectedIcon({ icon: icon.icon, name: icon.name });
   }
 
-  //Jsx
   return (
-    <div className="flex poppins relative border  ">
+    <div className="flex poppins relative border">
       {showSearchBar && mainSearchQuery && <LiveSearchBar />}
-
       <FilterDropDown />
       <AllFavoriteComponents />
       <SortingDropDown />

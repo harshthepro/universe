@@ -1,4 +1,16 @@
-async function addProject(projectData) {
+interface ProjectData {
+  name: string;
+  icon: string;
+  clerkUserId: string;
+  components: any[]; // Replace `any` with a more specific type if available
+}
+
+interface ApiResponse {
+  error?: string;
+  [key: string]: any; // Replace with a more specific type if the API response structure is known
+}
+
+async function addProject(projectData: ProjectData): Promise<void> {
   try {
     console.log("Sending data to API:", projectData); // Debug log
 
@@ -8,7 +20,7 @@ async function addProject(projectData) {
       body: JSON.stringify(projectData),
     });
 
-    const result = await response.json();
+    const result: ApiResponse = await response.json();
     console.log("API Response:", result); // Debug log
 
     if (!response.ok) {
@@ -17,7 +29,7 @@ async function addProject(projectData) {
 
     alert('Project added successfully!');
     // Update the UI or state here
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error adding project:", error); // Debug log
     alert(error.message);
   }

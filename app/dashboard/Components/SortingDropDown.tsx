@@ -73,7 +73,7 @@ function SortingDropDown() {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("wheel", handleWheel);
     };
-  }, [openSortingDropDown]);
+  }, [openSortingDropDown, setOpenSortingDropDown, setSortedProjects, sortingOptions]);
 
   // Save to localStorage whenever sortingOptions changes
   useEffect(() => {

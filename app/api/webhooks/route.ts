@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { EmailAddress, WebhookEvent } from "@clerk/nextjs/server";
 
 import User from "../../Models/UserSchema";
-import { connect } from "../../lib/connect";
+import connect from "../../lib/connect";
 
 export async function POST(req: Request) {
   // You can find this in the Clerk Dashboard -> Webhooks -> choose the endpoint

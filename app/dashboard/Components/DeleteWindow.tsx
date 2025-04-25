@@ -47,57 +47,60 @@ export default function ConfirmationDeleteWindow() {
   }
 
   async function deleteComponentFunction() {
-    // Delete Component from the selectedProject
     try {
-      if (selectedProject && selectedComponent) {
-        const response = await fetch(
-          `/api/projects?projectId=${selectedProject._id}&componentId=${selectedComponent._id}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              action: "deleteComponent",
-            }),
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to delete component");
-        }
-
-        const updatedProject = await response.json();
-
-        // Update the state with the updated project
-        setSelectedProject(updatedProject.project);
-
-        // Delete Component from allProjects
-        const updatedAllProjects = allProjects.map((project: Project) => {
-          if (project._id === selectedProject._id) {
-            return {
-              ...project,
-              components: project.components.filter(
-                (component: Component) =>
-                  component._id !== selectedComponent._id
-              ),
-            };
-          }
-          return project;
-        });
-
-        setAllProjects(updatedAllProjects);
-        setSelectedComponent(null);
-        setOpenDeleteWindow(false);
-
-        toast.success("Component deleted successfully");
-      } else {
+      if (!selectedProject || !selectedComponent) {
         throw new Error("Selected project or component is missing");
       }
+
+      const response = await fetch(
+        `/api/projects?projectId=${selectedProject._id}&componentId=${selectedComponent._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            action: "deleteComponent",
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to delete component");
+      }
+
+      const updatedProject = await response.json();
+
+      // Update the state with the updated project
+      setSelectedProject(updatedProject.project);
+
+      // Update allProjects to reflect the deleted component
+      const updatedAllProjects = allProjects.map((project: Project) => {
+        if (project._id === selectedProject._id) {
+          return {
+            ...project,
+            components: project.components.filter(
+              (component: Component) => component._id !== selectedComponent._id
+            ),
+          };
+        }
+        return project;
+      });
+
+      setAllProjects(updatedAllProjects);
+      setSelectedComponent(null);
+      setOpenDeleteWindow(false);
+
+      toast.success("Component deleted successfully");
     } catch (error) {
-      toast.error("Something went wrong");
+      console.error("Error deleting component:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Something went wrong"
+      );
     }
   }
+
   return (
     <div
       style={{ visibility: openDeleteWindow ? "visible" : "hidden" }}

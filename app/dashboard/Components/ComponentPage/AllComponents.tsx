@@ -33,6 +33,9 @@ function AllComponents({ searchInput }: { searchInput: string }) {
         : true
   );
 
+  // Debugging logs
+  console.log("Filtered Components:", filteredComponents);
+
   return (
     <div className=" mt-10 flex flex-col gap-3">
       {filteredComponents?.map((component: Component, index: number) => (
